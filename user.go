@@ -30,7 +30,7 @@ func (u User) send(message string) {
 		return
 	}
 
-	log.Println("--> " + message)
+	log.Println("-> " + message)
 
 	u.connection.Write([]byte(message))
 }

@@ -31,7 +31,7 @@ func main() {
 
 func connectionListener(c net.Conn) {
 	for {
-		buf := make([]byte, 1024)
+		buf := make([]byte, 512)
 
 		_, err := c.Read(buf)
 		if err != nil {
@@ -39,59 +39,65 @@ func connectionListener(c net.Conn) {
 			// panic(err)
 		}
 
-		if len(buf) > 0 {
-			parseCommand(string(buf), c)
+		if len(buf) == 0 {
+			continue
+		}
+
+		for _, line := range strings.Split(string(buf), "\n\r") {
+			strings.Trim(line, " ")
+
+			if line == "" {
+				continue
+			}
+
+			log.Println("<- " + line)
+
+			//message := parseMessage(line)
+			//execCommand(message, c)
 		}
 	}
 }
 
-func parseCommand(input string, c net.Conn) {
-	for _, cmd := range strings.Split(input, "\n") {
-		if cmd == "" {
-			return
+/*func execCommand(message message, c net.Conn) {
+	user := usersList[c]
+	fmt.Println(message)
+
+	switch message.command {
+	case "NICK":
+		usersList.newUser(c, message.params[1])
+
+	case "PING":
+		response := []byte("PONG")
+
+		c.Write(response)
+
+	case "QUIT":
+		c.Close()
+
+	case "JOIN":
+		channel, ok := channelList[message.params[1]]
+		if !ok {
+			channelList[message.params[1]] = newChannel(message.params[1])
+
+			channel = channelList[message.params[1]]
 		}
 
-		log.Println("<-- " + cmd)
+		channel.addUser(&user)
 
-		user := usersList[c]
-		command := strings.Fields(cmd)
-
-		switch command[0] {
-		case "NICK":
-			usersList.newUser(c, command[1])
-
-		case "PING":
-			response := []byte("PONG")
-
-			c.Write(response)
-
-		case "QUIT":
-			c.Close()
-
-		case "JOIN":
-			channel, ok := channelList[command[1]]
-			if !ok {
-				channelList[command[1]] = newChannel(command[1])
-
-				channel = channelList[command[1]]
-			}
-
-			channel.addUser(&user)
-
-		case "PRIVMSG":
-			switch {
-			case command[1][0] == '#':
-				channel := channelList[command[1]]
-				channel.sendMessage(&user, command[2])
-			}
-
-		case "LIST":
-			fmt.Println(channelList)
-			channelList.sendList(&user)
-
-		case "TOPIC":
-			channel := channelList.get(command[1])
-			channel.setTopic(command[2])
+	case "PRIVMSG":
+		switch {
+		case message.params[1][0] == '#':
+			channel := channelList[message.params[1]]
+			channel.sendMessage(&user, message.params[1])
 		}
+
+	case "LIST":
+		fmt.Println(channelList)
+		channelList.sendList(&user)
+
+	case "TOPIC":
+		channel := channelList.get(message.params[1])
+		channel.setTopic(message.params[2])
 	}
 }
+*/

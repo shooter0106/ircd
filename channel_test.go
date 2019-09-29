@@ -11,7 +11,7 @@ func TestChannelCreate(t *testing.T) {
 	t.Parallel()
 
 	c := newChannel("#test")
-	require.IsType(t, Channel{}, c)
+	require.IsType(t, &Channel{}, c)
 	require.Equal(t, "#test", c.name)
 }
 
