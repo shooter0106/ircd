@@ -83,6 +83,15 @@ func execCommand(cmd interface{}, c net.Conn) {
 
 		channel.addUser(user)
 
+	case partCommand:
+		channel, ok := channelList[cmd.channel]
+		if !ok {
+			channelList[cmd.channel] = newChannel(cmd.channel)
+			channel = channelList[cmd.channel]
+		}
+
+		channel.removeUser(user)
+
 	case privmsgCommand:
 		switch {
 		// send message to channel

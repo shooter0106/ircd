@@ -62,3 +62,7 @@ func TestGetUsersNicknamesString(t *testing.T) {
 	require.Len(t, c.getUsersNicknamesString(), len(user.nick)+len(user2.nick)+1)
 	require.Equal(t, c.getUsersNicknamesString(), fmt.Sprintf("%s %s", user.nick, user2.nick))
 }
+
+func TestChannelRemoveUser(y *testing.T) {
+
+}

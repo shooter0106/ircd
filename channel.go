@@ -52,6 +52,21 @@ func (c *Channel) addUser(user *User) {
 	}
 }
 
+// Remove user from channel
+func (c *Channel) removeUser(user *User) {
+	s := make([]*User, 0, len(c.users)-1)
+	for _, v := range c.users {
+		if v.connection != user.connection {
+			s = append(s, v)
+		}
+	}
+
+	c.users = s
+	for _, u := range c.users {
+		c.sendUsersList(u)
+	}
+}
+
 func (c *Channel) sendMessage(from *User, message string) {
 	for _, user := range c.users {
 		if from.nick == user.nick {

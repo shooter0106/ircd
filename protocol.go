@@ -19,6 +19,7 @@ var commandHandlers = map[string]parseCommandFunc{
 	"NICK":    parseNickMessage,
 	"QUIT":    parseQuitMessage,
 	"JOIN":    parseJoinCommand,
+	"PART":    parsePartCommand,
 	"PRIVMSG": parsePrivmsgCommand,
 	"LIST":    parseListCommand,
 	"TOPIC":   parseTopicCommand,
@@ -126,6 +127,23 @@ func parseJoinCommand(msg []string) interface{} {
 	cmd.cmd = msg[0]
 	cmd.channel = msg[1]
 	//cmd.key = msg[2]
+
+	return cmd
+}
+
+// PART
+
+type partCommand struct {
+	channel string
+	message string
+	baseCommand
+}
+
+func parsePartCommand(msg []string) interface{} {
+	cmd := partCommand{}
+	cmd.cmd = msg[0]
+	cmd.channel = msg[1]
+	cmd.message = msg[2]
 
 	return cmd
 }
