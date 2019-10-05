@@ -16,7 +16,12 @@ type baseCommand struct {
 type parseCommandFunc func(msg []string) interface{}
 
 var commandHandlers = map[string]parseCommandFunc{
-	"NICK": parseNickMessage,
+	"NICK":    parseNickMessage,
+	"QUIT":    parseQuitMessage,
+	"JOIN":    parseJoinCommand,
+	"PRIVMSG": parsePrivmsgCommand,
+	"LIST":    parseListCommand,
+	"TOPIC":   parseTopicCommand,
 }
 
 // Validate command name
@@ -91,4 +96,100 @@ func parseNickMessage(msg []string) interface{} {
 	cmd.nickname = msg[1]
 
 	return cmd
+}
+
+// QUIT
+
+type quitCommand struct {
+	message string
+	baseCommand
+}
+
+func parseQuitMessage(msg []string) interface{} {
+	cmd := quitCommand{}
+	cmd.cmd = msg[0]
+	cmd.message = msg[1]
+
+	return cmd
+}
+
+// JOIN
+
+type joinCommand struct {
+	channel string
+	key     string
+	baseCommand
+}
+
+func parseJoinCommand(msg []string) interface{} {
+	cmd := joinCommand{}
+	cmd.cmd = msg[0]
+	cmd.channel = msg[1]
+	//cmd.key = msg[2]
+
+	return cmd
+}
+
+// PRIVMSG
+
+type privmsgCommand struct {
+	receiver string
+	message  string
+	baseCommand
+}
+
+func parsePrivmsgCommand(msg []string) interface{} {
+	cmd := privmsgCommand{}
+	cmd.cmd = msg[0]
+	cmd.receiver = msg[1]
+	cmd.message = msg[2]
+
+	return cmd
+}
+
+// LIST
+
+type listCommand struct {
+	// channel and server args ignored
+	baseCommand
+}
+
+func parseListCommand(msg []string) interface{} {
+	cmd := listCommand{}
+	cmd.cmd = msg[0]
+
+	return cmd
+}
+
+// TOPIC
+
+type getTopicCommand struct {
+	channel string
+	baseCommand
+}
+
+type setTopicCommand struct {
+	channel string
+	topic   string
+	baseCommand
+}
+
+func parseTopicCommand(msg []string) interface{} {
+	switch len(msg) {
+	case 2:
+		cmd := getTopicCommand{}
+		cmd.cmd = msg[0]
+		cmd.channel = msg[1]
+
+		return cmd
+	case 3:
+		cmd := setTopicCommand{}
+		cmd.cmd = msg[0]
+		cmd.channel = msg[1]
+		cmd.topic = msg[2]
+
+		return cmd
+	default:
+		panic("Wrong TOPIC message")
+	}
 }

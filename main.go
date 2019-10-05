@@ -43,7 +43,7 @@ func connectionListener(c net.Conn) {
 			continue
 		}
 
-		for _, line := range strings.Split(string(buf), "\n\r") {
+		for _, line := range strings.Split(string(buf), "\r\n") {
 			strings.Trim(line, " ")
 
 			if line == "" {
@@ -52,52 +52,51 @@ func connectionListener(c net.Conn) {
 
 			log.Println("<- " + line)
 
-			//message := parseMessage(line)
-			//execCommand(message, c)
+			cmd, err := parseLine(line)
+			if err != nil {
+				// just ignore unknown commands
+				//panic(err)
+				continue
+			}
+
+			execCommand(cmd, c)
 		}
 	}
 }
 
-/*func execCommand(message message, c net.Conn) {
+func execCommand(cmd interface{}, c net.Conn) {
 	user := usersList[c]
-	fmt.Println(message)
 
-	switch message.command {
-	case "NICK":
-		usersList.newUser(c, message.params[1])
+	switch cmd := cmd.(type) {
+	case nickCommand:
+		usersList = usersList.newUser(c, cmd.nickname)
 
-	case "PING":
-		response := []byte("PONG")
-
-		c.Write(response)
-
-	case "QUIT":
+	case quitCommand:
 		c.Close()
 
-	case "JOIN":
-		channel, ok := channelList[message.params[1]]
+	case joinCommand:
+		channel, ok := channelList[cmd.channel]
 		if !ok {
-			channelList[message.params[1]] = newChannel(message.params[1])
-
-			channel = channelList[message.params[1]]
+			channelList[cmd.channel] = newChannel(cmd.channel)
+			channel = channelList[cmd.channel]
 		}
 
-		channel.addUser(&user)
+		channel.addUser(user)
 
-	case "PRIVMSG":
+	case privmsgCommand:
 		switch {
-		case message.params[1][0] == '#':
-			channel := channelList[message.params[1]]
-			channel.sendMessage(&user, message.params[1])
+		// send message to channel
+		case cmd.receiver[0] == '#':
+			channel := channelList[cmd.receiver]
+			channel.sendMessage(user, cmd.message)
 		}
 
-	case "LIST":
-		fmt.Println(channelList)
-		channelList.sendList(&user)
+	case listCommand:
+		channelList.sendList(user)
 
-	case "TOPIC":
-		channel := channelList.get(message.params[1])
-		channel.setTopic(message.params[2])
+	case setTopicCommand:
+		channel := channelList.get(cmd.channel)
+		channel.setTopic(cmd.topic)
+
 	}
 }
-*/

@@ -5,14 +5,17 @@ import (
 	"net"
 )
 
-type Users map[net.Conn]User
+type Users map[net.Conn]*User
 
-func (users Users) newUser(conn net.Conn, nick string) {
-	users[conn] = User{
+func (users Users) newUser(conn net.Conn, nick string) Users {
+	user := &User{
 		connection: conn,
 		nick:       nick,
 		host:       "localhost",
 	}
+	users[conn] = user
+
+	return users
 }
 
 func (users Users) getCount() int {
