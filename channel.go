@@ -41,14 +41,22 @@ func (c *Channels) sendList(user *User) {
 	user.send(message)
 }
 
+// Adds user to channel
 func (c *Channel) addUser(user *User) {
 	c.users = append(c.users, user)
-	message := ":" + user.nick + "!~" + user.nick + "@127.0.0.1 JOIN " + c.name + "\n\r"
+
+	message := fmt.Sprintf(":%s!%s@%s JOIN %s\n\r", user.nick, user.nick, "127.0.0.1", c.name)
 	user.send(message)
 
 	c.sendTopic(user)
+	c.sendUsersList(user)
 	for _, u := range c.users {
-		c.sendUsersList(u)
+		if u == user {
+			continue
+		}
+
+		message := fmt.Sprintf(":%s!%s@%s JOIN %s\n\r", user.nick, user.nick, "127.0.0.1", c.name)
+		u.send(message)
 	}
 }
 
