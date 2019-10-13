@@ -44,7 +44,7 @@ func connectionListener(c net.Conn) {
 		}
 
 		for _, line := range strings.Split(string(buf), "\r\n") {
-			strings.Trim(line, " ")
+			line = strings.Trim(line, "\x00")
 
 			if line == "" {
 				continue
