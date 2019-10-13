@@ -55,23 +55,27 @@ func (c *Channel) addUser(user *User) {
 			continue
 		}
 
-		message := fmt.Sprintf(":%s!%s@%s JOIN %s\n\r", user.nick, user.nick, "127.0.0.1", c.name)
 		u.send(message)
 	}
 }
 
-// Remove user from channel
-func (c *Channel) removeUser(user *User) {
+// Removes user from channel
+func (c *Channel) removeUser(user *User, reason string) {
 	s := make([]*User, 0, len(c.users)-1)
 	for _, v := range c.users {
-		if v.connection != user.connection {
-			s = append(s, v)
+		if v.connection == user.connection {
+			continue
 		}
+
+		s = append(s, v)
 	}
+
+	message := fmt.Sprintf(":%s PART %s :%s\n\r", user.nick, c.name, reason)
+	user.send(message)
 
 	c.users = s
 	for _, u := range c.users {
-		c.sendUsersList(u)
+		u.send(message)
 	}
 }
 

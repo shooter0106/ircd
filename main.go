@@ -90,7 +90,7 @@ func execCommand(cmd interface{}, c net.Conn) {
 			channel = channelList[cmd.channel]
 		}
 
-		channel.removeUser(user)
+		channel.removeUser(user, cmd.message)
 
 	case privmsgCommand:
 		switch {

@@ -143,7 +143,11 @@ func parsePartCommand(msg []string) interface{} {
 	cmd := partCommand{}
 	cmd.cmd = msg[0]
 	cmd.channel = msg[1]
-	cmd.message = msg[2]
+	if msg[2] == "" {
+		cmd.message = "Leaving"
+	} else {
+		cmd.message = msg[2]
+	}
 
 	return cmd
 }
